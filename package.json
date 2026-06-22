@@ -1,0 +1,29 @@
+{
+  "name": "run-map",
+  "version": "1.0.0",
+  "description": "An interactive map showcasing runs tracked various trackers.",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server . -p 3030 -c-1",
+    "parse": "node src/parser/parse.js",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{js,css,html,json,md}\" \"!data/runs.json\"",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "eslint": "^9.5.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.6.0",
+    "http-server": "^14.1.1",
+    "prettier": "^3.3.2"
+  },
+  "keywords": [
+    "leaflet",
+    "google-fit",
+    "tcx",
+    "running",
+    "map"
+  ],
+  "author": "",
+  "license": "ISC"
+}

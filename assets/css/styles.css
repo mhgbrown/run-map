@@ -1,0 +1,108 @@
+/* Custom Global Layout styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  background-color: #f8fafc; /* slate-50 */
+}
+
+/* Sidebar scrollbar customization */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* slate-300 */
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* slate-400 */
+}
+
+/* Custom styling for Leaflet map popups */
+.custom-map-popup .leaflet-popup-content-wrapper {
+  background: #ffffff;
+  color: #1e293b; /* slate-800 */
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 2px;
+}
+
+.custom-map-popup .leaflet-popup-tip {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.3);
+}
+
+.custom-map-popup .leaflet-popup-content {
+  margin: 12px;
+  line-height: 1.4;
+}
+
+/* Map Polyline styling fixes */
+path.leaflet-interactive {
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, stroke-opacity 0.2s ease;
+}
+
+/* Accent bar slide animations */
+.run-card.active {
+  box-shadow: 0 4px 12px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
+}
+
+.run-card:hover .accent-bar {
+  opacity: 1;
+}
+
+/* Set Map height to fill container correctly */
+#map {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Running emoji loader animation */
+@keyframes runner-run {
+  0% {
+    transform: translateX(-160px) scaleX(-1) translateY(0) rotate(-6deg);
+  }
+  10% {
+    transform: translateX(-128px) scaleX(-1) translateY(-12px) rotate(10deg);
+  }
+  20% {
+    transform: translateX(-96px) scaleX(-1) translateY(0) rotate(-6deg);
+  }
+  30% {
+    transform: translateX(-64px) scaleX(-1) translateY(-12px) rotate(10deg);
+  }
+  40% {
+    transform: translateX(-32px) scaleX(-1) translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateX(0px) scaleX(-1) translateY(-12px) rotate(10deg);
+  }
+  60% {
+    transform: translateX(32px) scaleX(-1) translateY(0) rotate(-6deg);
+  }
+  70% {
+    transform: translateX(64px) scaleX(-1) translateY(-12px) rotate(10deg);
+  }
+  80% {
+    transform: translateX(96px) scaleX(-1) translateY(0) rotate(-6deg);
+  }
+  90% {
+    transform: translateX(128px) scaleX(-1) translateY(-12px) rotate(10deg);
+  }
+  100% {
+    transform: translateX(160px) scaleX(-1) translateY(0) rotate(-6deg);
+  }
+}
+
+.animate-runner {
+  animation: runner-run 3.5s linear infinite;
+}

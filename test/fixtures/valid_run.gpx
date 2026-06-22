@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Strava" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <time>2026-06-15T08:00:00Z</time>
+  </metadata>
+  <trk>
+    <name>Afternoon Run</name>
+    <type>9</type>
+    <trkseg>
+      <trkpt lat="52.5145" lon="13.3501">
+        <ele>34.2</ele>
+        <time>2026-06-15T08:00:00Z</time>
+      </trkpt>
+      <trkpt lat="52.5150" lon="13.3550">
+        <ele>34.3</ele>
+        <time>2026-06-15T08:10:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

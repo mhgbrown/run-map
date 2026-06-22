@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Runs</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg transform='scale(-1, 1) translate(-100, 0)'%3E%3Ctext y='80' x='50' font-size='80' text-anchor='middle'%3E🏃%3C/text%3E%3C/g%3E%3C/svg%3E"
+    />
+
+    <!-- Leaflet Map CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body class="h-screen flex flex-col md:flex-row overflow-hidden text-gray-800">
+    <!-- Mobile Header (Top of Screen on Mobile, Hidden on Desktop) -->
+    <header
+      class="order-1 flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50/30 p-3 md:hidden"
+    >
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center justify-center">
+          <!-- Running Icon (mirrored) -->
+          <span class="transform select-none text-2xl leading-none -scale-x-100">🏃</span>
+        </div>
+        <div>
+          <h1 id="site-title-mobile" class="text-lg font-extrabold tracking-tight text-gray-900">
+            My Runs
+          </h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Component -->
+    <aside
+      class="order-3 flex flex-col h-[50vh] w-full flex-shrink-0 border-b border-gray-200 bg-white shadow-lg custom-scrollbar overflow-y-auto z-[10] md:order-none md:h-full md:w-[400px] md:border-b-0 md:border-r lg:w-[450px] md:overflow-y-hidden"
+    >
+      <!-- Sidebar Header (Desktop) -->
+      <header
+        class="hidden md:block p-4 md:p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50/30"
+      >
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center justify-center">
+            <!-- Running Icon (mirrored) -->
+            <span
+              class="w-6 h-6 flex items-center justify-center text-3xl leading-none select-none transform -scale-x-100"
+              >🏃</span
+            >
+          </div>
+          <div>
+            <h1 id="site-title" class="text-xl font-extrabold text-gray-900 tracking-tight">
+              My Runs
+            </h1>
+            <p class="text-xs text-gray-500 mt-0.5 font-medium">
+              Interactive running chronicle & routes
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <!-- Stats Panel -->
+      <section
+        id="stats-panel"
+        class="p-4 md:p-6 border-b border-gray-100 bg-white transition-opacity duration-300"
+      >
+        <h2
+          id="stats-toggle"
+          class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center cursor-pointer hover:text-gray-600 transition-colors"
+        >
+          <span id="stats-title">Lifetime Statistics</span>
+          <span class="ml-2 flex-grow border-t border-gray-100"></span>
+          <svg
+            id="stats-chevron"
+            class="w-4 h-4 ml-2 transform transition-transform duration-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
+          </svg>
+        </h2>
+        <div id="stats-grid" class="grid grid-cols-2 gap-4 transition-all duration-300">
+          <!-- Runs Stat -->
+          <div class="bg-gray-50/60 p-3.5 rounded-xl border border-gray-100/50">
+            <div class="text-xs font-semibold text-gray-500">Total Runs</div>
+            <div id="stat-total-runs" class="text-2xl font-black text-gray-900 mt-0.5">0</div>
+          </div>
+          <!-- Distance Stat -->
+          <div class="bg-gray-50/60 p-3.5 rounded-xl border border-gray-100/50">
+            <div class="text-xs font-semibold text-gray-500">Total Distance</div>
+            <div id="stat-total-distance" class="text-2xl font-black text-blue-600 mt-0.5">
+              0.00 km
+            </div>
+          </div>
+          <!-- Duration Stat -->
+          <div class="bg-gray-50/60 p-3.5 rounded-xl border border-gray-100/50">
+            <div class="text-xs font-semibold text-gray-500">Total Time</div>
+            <div id="stat-total-duration" class="text-2xl font-black text-gray-800 mt-0.5">
+              0:00
+            </div>
+          </div>
+          <!-- Average Pace Stat -->
+          <div class="bg-gray-50/60 p-3.5 rounded-xl border border-gray-100/50">
+            <div class="text-xs font-semibold text-gray-500">Avg Pace</div>
+            <div id="stat-avg-pace" class="text-2xl font-black text-indigo-600 mt-0.5">
+              0:00 /km
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Location Filter Dropdown -->
+      <section class="p-4 pb-2 md:p-6 md:pb-3 border-b border-gray-100 bg-white">
+        <label
+          for="location-select"
+          class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2"
+          >Filter by Location</label
+        >
+        <div class="relative">
+          <select
+            id="location-select"
+            class="w-full text-sm font-semibold bg-gray-50 border border-gray-200 text-gray-800 rounded-xl p-3 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
+          >
+            <option value="all">All Locations</option>
+          </select>
+          <!-- Custom Chevron Arrow -->
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+          >
+            <svg
+              class="fill-current h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+              />
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- History Controls & List -->
+      <div
+        class="p-4 pb-2 md:p-6 md:pb-3 flex items-center justify-between border-b border-gray-50 bg-white"
+      >
+        <h2 class="text-sm font-bold text-gray-800">Running History</h2>
+        <div class="flex items-center space-x-2">
+          <button
+            id="btn-random-location"
+            class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center space-x-1 py-1 px-2 rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2.2"
+              stroke="currentColor"
+              class="w-3.5 h-3.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25a7.5 7.5 0 1 1 15 0Z"
+              />
+            </svg>
+            <span>Random Location</span>
+          </button>
+          <button
+            id="btn-show-all"
+            class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center space-x-1 py-1 px-2.5 rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2.5"
+              stroke="currentColor"
+              class="w-3.5 h-3.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25"
+              />
+            </svg>
+            <span>Show All</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable Runs Cards List -->
+      <div
+        id="runs-list"
+        class="flex-shrink-0 md:flex-grow overflow-y-visible md:overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar bg-slate-50/30 transition-opacity duration-300"
+      >
+        <!-- Cards rendered dynamically via JavaScript -->
+      </div>
+
+      <!-- Empty/Error State Placeholder -->
+      <div
+        id="empty-state"
+        class="hidden absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-8 text-center"
+      >
+        <div class="p-4 bg-orange-50 rounded-full text-orange-500 mb-4 animate-bounce">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="w-10 h-10"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+            />
+          </svg>
+        </div>
+        <h3 class="text-base font-bold text-gray-900">No Running Data Found</h3>
+        <p class="text-sm text-gray-500 mt-2 max-w-xs leading-relaxed">
+          Please export your Google Takeout Fit activity files, place them into
+          <code class="bg-gray-100 px-1 py-0.5 rounded text-red-600 font-mono text-xs"
+            >data/raw/</code
+          >, and execute
+          <code class="bg-gray-100 px-1 py-0.5 rounded text-blue-600 font-mono text-xs"
+            >npm run parse</code
+          >.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Interactive Map Canvas -->
+    <main id="map" class="order-2 flex-grow h-[40vh] md:order-none md:h-full relative shadow-inner">
+      <!-- Leaflet mounts here -->
+    </main>
+
+    <!-- Leaflet Map JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+
+    <!-- App Loading Screen Overlay -->
+    <div
+      id="app-loader"
+      class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center transition-all duration-500 text-white"
+    >
+      <div class="relative flex items-center justify-center mb-6 w-80 h-16">
+        <!-- Running Icon (mirrored & animated) -->
+        <span class="absolute text-6xl leading-none select-none animate-runner">🏃</span>
+      </div>
+      <h1 class="text-xl font-extrabold tracking-tight">Loading My Runs</h1>
+      <p class="text-sm text-slate-400 mt-2 font-medium">Assembling map routes & statistics...</p>
+    </div>
+
+    <!-- Modular Web App Scripts -->
+    <script type="module" src="src/web/app.js"></script>
+  </body>
+</html>
