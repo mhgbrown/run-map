@@ -9,7 +9,7 @@ _Coded with the help of **Gemini 3.5 Flash**._
 - 🗺️ **Interactive Leaflet Map**: Smoothly overlays GPS routes with no API keys required.
 - 📊 **Dynamic Statistics & Location Filters**: Auto-calculates total runs, total distance, total cumulative time, and weighted average pace globally, or filters specifically by selected cities/locations.
 - 📱 **Responsive Dual-Panel UI**: Designed to work flawlessly on desktop monitors and mobile touch screens alike, with a thin mobile header and a fully scrollable sidebar on mobile screens.
-- ⚡ **Highly Performant**: Pre-parses raw XML/GPX files on your machine to a compressed JSON structure, leading to instant loading times.
+- ⚡ **Highly Performant & Lazy-Loaded**: Pre-parses raw XML/GPX files on your machine into a highly compressed metadata database (`runs.json`) and segmented coordinate chunks (`coords_part_X.json`). On app startup, the frontend loads only the extremely lightweight metadata, and then dynamically lazy-loads GPS track coordinates on-demand as you zoom into regions, pan the map viewport, or interact with cards in the sidebar. This ensures instant page loads even on slower mobile cellular networks!
 - 📍 **Two-Way Synchronization**: Hovering/clicking sidebar cards highlights the corresponding track on the map, and clicking a track on the map selects and pans the sidebar card.
 - 🔄 **Auto-centering & Zoom**: No hardcoded coordinate maps! The frontend automatically fits the map bounding envelope to wherever your runs actually took place.
 - 🗺️ **Reverse Geocoding & Local Caching**: Automatically resolves coordinates to city/country names using the OpenStreetMap Nominatim API, utilizing a local cache (`data/.geocoding_cache.json`) to limit and optimize network queries.
@@ -68,7 +68,7 @@ To process your raw TCX/GPX files and build the compiled web data structure:
    ```bash
    npm run parse
    ```
-4. This will run `src/parser/parse.js`, parse the XML inputs, fetch and cache location names (via OpenStreetMap's reverse geocoding API), compile them chronologically, and save them as a single optimized `data/runs.json` database.
+4. This will run `src/parser/parse.js`, parse the XML inputs, fetch and cache location names (via OpenStreetMap's reverse geocoding API), compile them chronologically, and save them as an optimized `data/runs.json` metadata database, alongside lightweight coordinate chunk files (`data/coords_part_X.json`) containing the detailed GPS track coordinates.
 
 ---
 
