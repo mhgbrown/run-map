@@ -4,9 +4,11 @@ const { parseTCX } = require('./tcx-parser');
 const { parseGPX } = require('./gpx-parser');
 const { haversineDistance } = require('./utils');
 
-const RAW_DIR = path.join(__dirname, '..', '..', 'data', 'raw');
-const OUTPUT_FILE = path.join(__dirname, '..', '..', 'data', 'runs.json');
-const CACHE_FILE = path.join(__dirname, '..', '..', 'data', '.geocoding_cache.json');
+const RAW_DIR = process.env.RAW_DIR || path.join(__dirname, '..', '..', 'data', 'raw');
+const OUTPUT_FILE =
+  process.env.OUTPUT_FILE || path.join(__dirname, '..', '..', 'data', 'runs.json');
+const CACHE_FILE =
+  process.env.CACHE_FILE || path.join(__dirname, '..', '..', 'data', '.geocoding_cache.json');
 
 // Configuration for filtering runs
 const PARSER_CONFIG = {

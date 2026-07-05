@@ -7,7 +7,7 @@
     "start": "http-server . -p 3030 -c-1",
     "parse": "node src/parser/parse.js",
     "lint": "eslint .",
-    "format": "prettier --write \"**/*.{js,css,html,json,md}\" \"!data/runs.json\"",
+    "format": "prettier --write \"**/*.{js,css,html,json,md}\" \"!data/**\"",
     "test": "node --test"
   },
   "devDependencies": {

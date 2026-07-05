@@ -105,9 +105,9 @@ class RunningApp {
         }
         this.hoverRun(runId);
       },
-      onLoadChunksRequired: async (chunkFiles) => {
+      onLoadChunksRequired: async chunkFiles => {
         return await this.loadChunks(chunkFiles);
-      }
+      },
     });
     this.mapManager.init();
   }
@@ -179,7 +179,7 @@ class RunningApp {
 
     try {
       const chunkContents = await Promise.all(fetchPromises);
-      
+
       // Re-render routes that have newly loaded coordinates
       if (this.mapManager) {
         this.mapManager.renderRoutes(this.runs);

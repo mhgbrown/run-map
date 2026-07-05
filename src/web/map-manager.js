@@ -11,17 +11,17 @@ export class MapManager {
     // Store polyline layers mapped by runId
     // Each run will have an object: { foreground: L.polyline, background: L.polyline, run: runData }
     this.routeLayers = {};
-    
+
     // Store circular start markers mapped by runId
     this.startPointLayers = {};
-    
+
     this.activeRunId = null;
     this._isMovingProgrammatically = false;
   }
 
   /**
    * Store the full runs list
-   * @param {Array} runs 
+   * @param {Array} runs
    */
   setRuns(runs) {
     this.runs = runs;
@@ -104,10 +104,13 @@ export class MapManager {
       }).addTo(this.map);
 
       // Simple tooltip on hover
-      marker.bindTooltip(`Run ${new Date(run.date).toLocaleDateString()}: ${(run.distanceMeters / 1000).toFixed(2)} km`, {
-        direction: 'top',
-        className: 'custom-tooltip',
-      });
+      marker.bindTooltip(
+        `Run ${new Date(run.date).toLocaleDateString()}: ${(run.distanceMeters / 1000).toFixed(2)} km`,
+        {
+          direction: 'top',
+          className: 'custom-tooltip',
+        }
+      );
 
       marker.on('click', () => {
         this.setView(coord, CONFIG.targetZoom || 13);
@@ -142,7 +145,7 @@ export class MapManager {
     if (!this.runs || this.runs.length === 0) return;
 
     const bounds = this.map.getBounds();
-    
+
     // Find runs whose start coordinates are inside the current map viewport
     const visibleRuns = this.runs.filter(run => {
       const coord = run.startCoordinate || (run.coordinates && run.coordinates[0]);
@@ -151,11 +154,11 @@ export class MapManager {
     });
 
     // Identify which chunks need loading
-    const chunkFilesNeeded = [...new Set(
-      visibleRuns
-        .filter(run => !run.coordinates && run.chunkFile)
-        .map(run => run.chunkFile)
-    )];
+    const chunkFilesNeeded = [
+      ...new Set(
+        visibleRuns.filter(run => !run.coordinates && run.chunkFile).map(run => run.chunkFile)
+      ),
+    ];
 
     if (chunkFilesNeeded.length > 0 && this.callbacks.onLoadChunksRequired) {
       await this.callbacks.onLoadChunksRequired(chunkFilesNeeded);
