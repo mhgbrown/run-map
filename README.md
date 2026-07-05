@@ -58,6 +58,71 @@ You can export your activities from Strava either in bulk (all historical runs) 
 
 ---
 
+## 🔄 Automated Strava Synchronization
+
+Instead of exporting your activities manually, you can set up automatic daily synchronization. The workflow runs completely on **GitHub Actions** via a cron schedule, fetches any new running activities from Strava's API, converts them to `.gpx` files in `data/raw/`, parses them into `runs.json`, and deploys the updated site automatically!
+
+### 🔑 How to Get Your Strava API Credentials
+
+1. **Create a Strava API Application**:
+   - Go to the [Strava API Settings Page](https://www.strava.com/settings/api) (ensure you are logged in).
+   - Enter an **Application Name** (e.g., `My Run Map`).
+   - For **Website**, use any placeholder (e.g., `http://localhost`).
+   - For **Authorization Callback Domain**, enter **`localhost`** (this is critical!).
+   - Click **Create**. Copy your **Client ID** and **Client Secret**.
+
+2. **Get Your Authorization Code**:
+   - Paste your `Client ID` into the following URL and open it in your browser:
+     ```text
+     https://www.strava.com/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost&response_type=code&scope=activity:read_all
+     ```
+   - Click **Authorize**.
+   - Your browser will redirect to a page that fails to load (e.g., `http://localhost/?state=&code=AUTHORIZATION_CODE&scope=...`).
+   - Look at the address bar of your browser and copy the string value of the **`code`** parameter.
+
+3. **Exchange the Code for a Refresh Token**:
+   - Open your terminal and run the following command (replacing placeholders with your actual values):
+     ```bash
+     curl -X POST https://www.strava.com/oauth/token \
+       -F client_id=YOUR_CLIENT_ID \
+       -F client_secret=YOUR_CLIENT_SECRET \
+       -F code=YOUR_AUTHORIZATION_CODE \
+       -F grant_type=authorization_code
+     ```
+   - Copy the value of **`refresh_token`** from the returned JSON response. This refresh token is permanent and is used to automatically generate access tokens without user interaction.
+
+### 💻 Running the Sync Locally
+
+1. Create a file named `.env` in the root of this project (this file is automatically ignored by Git):
+   ```env
+   STRAVA_CLIENT_ID="your_client_id_here"
+   STRAVA_CLIENT_SECRET="your_client_secret_here"
+   STRAVA_REFRESH_TOKEN="your_refresh_token_here"
+   ```
+2. Run the sync command to fetch recent activities and generate GPX files:
+   ```bash
+   npm run sync-strava
+   ```
+3. Parse the downloaded activities to compile the runs database:
+   ```bash
+   npm run parse
+   ```
+
+### 🤖 Configuring the Automated GitHub Actions Cron
+
+To run this sync daily on GitHub, configure your repository secrets:
+
+1. Open your repository on GitHub.
+2. Go to **Settings** > **Secrets and variables** > **Actions**.
+3. Click **New repository secret** and add the following three secrets:
+   - `STRAVA_CLIENT_ID`: Your Strava App's Client ID.
+   - `STRAVA_CLIENT_SECRET`: Your Strava App's Client Secret.
+   - `STRAVA_REFRESH_TOKEN`: Your Strava App's permanent Refresh Token.
+
+The **Sync Strava Activities** workflow will now run daily at midnight UTC on a cron schedule, commit new activities back to `main`, and trigger the **Deploy to GitHub Pages** workflow.
+
+---
+
 ## 🛠️ Running the Parser
 
 To process your raw TCX/GPX files and build the compiled web data structure:
