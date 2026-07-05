@@ -30,7 +30,7 @@ module.exports = [
 
   // Backend parser and configuration scripts (Node.js, CommonJS)
   {
-    files: ['src/parser/**/*.js', 'test/**/*.js', '*.js'],
+    files: ['src/parser/**/*.js', 'src/strava/**/*.js', 'test/**/*.js', '*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'commonjs',
