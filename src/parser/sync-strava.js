@@ -78,7 +78,9 @@ async function main() {
       act => act.type === 'Run' || act.sport_type === 'Run' || act.type === 'Running'
     );
 
-    console.log(`Found ${activities.length} recent activities. ${runs.length} are Running activities.`);
+    console.log(
+      `Found ${activities.length} recent activities. ${runs.length} are Running activities.`
+    );
 
     let downloadCount = 0;
     for (const run of runs) {
@@ -96,7 +98,9 @@ async function main() {
         const streams = await client.getActivityStreams(activityId);
 
         if (!streams.latlng || !streams.latlng.data || streams.latlng.data.length === 0) {
-          console.warn(`-> [Warning] No GPS coordinates found for activity ${activityId}, skipping.`);
+          console.warn(
+            `-> [Warning] No GPS coordinates found for activity ${activityId}, skipping.`
+          );
           continue;
         }
 

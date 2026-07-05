@@ -6,12 +6,9 @@ const { escapeXml, convertToGPX } = require('../src/strava/utils');
 test.describe('Strava Integration Tests', () => {
   test.describe('escapeXml utility', () => {
     test.it('should escape XML entities properly', () => {
+      assert.equal(escapeXml('Morning Run <Athens>'), 'Morning Run &' + 'lt;Athens&' + 'gt;');
       assert.equal(
-        escapeXml('Morning Run <Athens>'),
-        'Morning Run &' + 'lt;Athens&' + 'gt;'
-      );
-      assert.equal(
-        escapeXml("Paul's \"Fast\" & Slow Run"),
+        escapeXml('Paul\'s "Fast" & Slow Run'),
         'Paul&' + 'apos;s &' + 'quot;Fast&' + 'quot; &' + 'amp; Slow Run'
       );
       assert.equal(escapeXml(''), '');
