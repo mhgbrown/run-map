@@ -181,13 +181,14 @@ test.describe('TCX Run Parser Tests', () => {
         id: 'test-run-123',
         coordinates: [
           [52.5145, 13.3501],
-          [52.515, 13.355]
-        ]
+          [52.515, 13.355],
+        ],
       };
 
       // Behavior of parsing pipeline:
       // 1. Extract start coordinate
-      const startCoordinate = rawRun.coordinates && rawRun.coordinates.length > 0 ? rawRun.coordinates[0] : null;
+      const startCoordinate =
+        rawRun.coordinates && rawRun.coordinates.length > 0 ? rawRun.coordinates[0] : null;
       // 2. Map coordinates to coordinate map
       const chunkCoordinatesMap = {};
       chunkCoordinatesMap[rawRun.id] = rawRun.coordinates || [];
@@ -202,8 +203,101 @@ test.describe('TCX Run Parser Tests', () => {
       assert.equal(formattedRun.coordinates, undefined);
       assert.deepEqual(chunkCoordinatesMap['test-run-123'], [
         [52.5145, 13.3501],
-        [52.515, 13.355]
+        [52.515, 13.355],
       ]);
     });
+  });
+
+  test.describe('Incremental Parsing Integration', () => {
+    const os = require('os');
+    const { execSync } = require('child_process');
+
+    test.it(
+      'should keep existing parsed activities and only add new ones with correct chunks',
+      () => {
+        // 1. Setup temporary test directory structure
+        const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'run-map-test-'));
+        const rawDir = path.join(tempDir, 'raw');
+        fs.mkdirSync(rawDir);
+
+        const outputFile = path.join(tempDir, 'runs.json');
+        const cacheFile = path.join(tempDir, '.geocoding_cache.json');
+
+        // 2. Setup mock existing runs and coordinate chunks
+        const mockExistingRun = {
+          id: '2026-05-01T10:00:00Z',
+          date: '2026-05-01T10:00:00Z',
+          sport: 'Running',
+          distanceMeters: 5000,
+          durationSeconds: 1500,
+          paceSecondsPerKm: 300,
+          startCoordinate: [52.52, 13.405],
+          chunkFile: 'coords_part_1.json',
+        };
+
+        const mockExistingData = {
+          locations: [{ lat: 52.52, lon: 13.405, name: 'Berlin, Germany' }],
+          chunks: ['coords_part_1.json'],
+          runs: [mockExistingRun],
+        };
+
+        fs.writeFileSync(outputFile, JSON.stringify(mockExistingData, null, 2), 'utf8');
+
+        // Also create the mock coords_part_1.json in the temp output directory
+        const coordsPart1Path = path.join(tempDir, 'coords_part_1.json');
+        fs.writeFileSync(
+          coordsPart1Path,
+          JSON.stringify(
+            {
+              '2026-05-01T10:00:00Z': [[52.52, 13.405]],
+            },
+            null,
+            2
+          ),
+          'utf8'
+        );
+
+        // 3. Put a new run (valid_run.tcx) into rawDir
+        const newRunSrc = path.join(FIXTURES_DIR, 'valid_run.tcx');
+        const newRunDest = path.join(rawDir, 'valid_run.tcx');
+        fs.copyFileSync(newRunSrc, newRunDest);
+
+        // 4. Run parse.js under the temp environment variables
+        execSync(`node src/parser/parse.js`, {
+          env: {
+            ...process.env,
+            RAW_DIR: rawDir,
+            OUTPUT_FILE: outputFile,
+            CACHE_FILE: cacheFile,
+          },
+        });
+
+        // 5. Read the updated runs.json and verify
+        const updatedData = JSON.parse(fs.readFileSync(outputFile, 'utf8'));
+
+        // The new run should be added. The existing run should be preserved.
+        assert.equal(updatedData.runs.length, 2);
+
+        const containsExisting = updatedData.runs.some(r => r.id === '2026-05-01T10:00:00Z');
+        assert.ok(containsExisting, 'Should preserve existing run');
+
+        const containsNew = updatedData.runs.some(r => r.id === '2026-06-15T08:00:00.000Z');
+        assert.ok(containsNew, 'Should parse and add new run');
+
+        // The new run should be assigned to coords_part_2.json (since existing chunks had coords_part_1.json)
+        const newRun = updatedData.runs.find(r => r.id === '2026-06-15T08:00:00.000Z');
+        assert.equal(newRun.chunkFile, 'coords_part_2.json');
+        assert.equal(newRun.coordinates, undefined);
+
+        // Verify that coords_part_2.json was created and has the correct coordinates
+        const coordsPart2Path = path.join(tempDir, 'coords_part_2.json');
+        assert.ok(fs.existsSync(coordsPart2Path), 'coords_part_2.json should exist');
+        const coordsPart2Data = JSON.parse(fs.readFileSync(coordsPart2Path, 'utf8'));
+        assert.ok(coordsPart2Data['2026-06-15T08:00:00.000Z']);
+
+        // Cleanup
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      }
+    );
   });
 });
