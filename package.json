@@ -7,6 +7,7 @@
     "start": "http-server . -p 3030 -c-1",
     "parse": "node src/parser/parse.js",
     "sync-strava": "node src/parser/sync-strava.js",
+    "strava-authorize": "node src/parser/strava-authorize.js",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,css,html,json,md}\" \"!data/**\"",
     "test": "node --test"

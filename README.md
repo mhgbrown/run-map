@@ -81,15 +81,11 @@ Instead of exporting your activities manually, you can set up automatic daily sy
    - Look at the address bar of your browser and copy the string value of the **`code`** parameter.
 
 3. **Exchange the Code for a Refresh Token**:
-   - Open your terminal and run the following command (replacing placeholders with your actual values):
+   - Open your terminal and run the built-in authorization helper script (replacing placeholders with your actual values):
      ```bash
-     curl -X POST https://www.strava.com/oauth/token \
-       -F client_id=YOUR_CLIENT_ID \
-       -F client_secret=YOUR_CLIENT_SECRET \
-       -F code=YOUR_AUTHORIZATION_CODE \
-       -F grant_type=authorization_code
+     npm run strava-authorize -- <YOUR_CLIENT_ID> <YOUR_CLIENT_SECRET> <YOUR_AUTHORIZATION_CODE>
      ```
-   - Copy the value of **`refresh_token`** from the returned JSON response. This refresh token is permanent and is used to automatically generate access tokens without user interaction.
+   - The script will automatically exchange your code and output your permanent **`STRAVA_REFRESH_TOKEN`**! This refresh token is permanent and is used by the sync script to automatically generate short-lived access tokens without human interaction.
 
 ### 💻 Running the Sync Locally
 
