@@ -118,6 +118,22 @@ async function main() {
     return ext.endsWith('.tcx') || ext.endsWith('.gpx');
   });
 
+  // Load existing runs, chunks, and locations if they exist
+  let existingRuns = [];
+  let existingChunks = [];
+  if (fs.existsSync(OUTPUT_FILE)) {
+    try {
+      const existingData = JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8'));
+      existingRuns = existingData.runs || [];
+      existingChunks = existingData.chunks || [];
+      console.log(
+        `Loaded ${existingRuns.length} existing runs and ${existingChunks.length} existing coordinate chunks.`
+      );
+    } catch (err) {
+      console.warn('Warning: Failed to parse existing runs.json, starting fresh:', err.message);
+    }
+  }
+
   if (activityFiles.length === 0) {
     console.log('No TCX or GPX files found in data/raw/');
     console.log(
@@ -126,7 +142,12 @@ async function main() {
 
     // Create an empty array if output doesn't exist so frontend load doesn't crash
     if (!fs.existsSync(OUTPUT_FILE)) {
-      fs.writeFileSync(OUTPUT_FILE, JSON.stringify([], null, 2), 'utf8');
+      const outputData = {
+        locations: [],
+        chunks: [],
+        runs: [],
+      };
+      fs.writeFileSync(OUTPUT_FILE, JSON.stringify(outputData, null, 2), 'utf8');
       console.log('Initialized empty data/runs.json');
     }
     return;
@@ -134,7 +155,7 @@ async function main() {
 
   console.log(`Found ${activityFiles.length} activity files (TCX/GPX). Processing...`);
 
-  const runs = [];
+  const newRuns = [];
   let successCount = 0;
   let failCount = 0;
   let wrongSportCount = 0;
@@ -155,6 +176,14 @@ async function main() {
       }
 
       if (run) {
+        // Check if run is already parsed
+        const alreadyParsed =
+          existingRuns.some(r => r.id === run.id) || newRuns.some(r => r.id === run.id);
+        if (alreadyParsed) {
+          console.log(`[Skipped] "${filename}" is already parsed (ID: ${run.id})`);
+          continue;
+        }
+
         // 1. Filter by Sport Type
         if (
           PARSER_CONFIG.targetSport &&
@@ -199,7 +228,7 @@ async function main() {
           }
         }
 
-        runs.push(run);
+        newRuns.push(run);
         successCount++;
       } else {
         console.warn(`[Warning] No GPS trackpoints or valid run data found in: ${filename}`);
@@ -211,11 +240,51 @@ async function main() {
     }
   }
 
-  // Sort runs chronological: newest first
-  runs.sort((a, b) => new Date(b.date) - new Date(a.date));
+  // Chunk the new run coordinates into separate files to avoid large file issues and optimize loading
+  const newChunkFiles = [];
+  const chunkSize = 20;
+  const totalNewRuns = newRuns.length;
+
+  for (let i = 0; i < totalNewRuns; i += chunkSize) {
+    const chunkIndex = existingChunks.length + Math.floor(i / chunkSize) + 1;
+    const chunkRuns = newRuns.slice(i, i + chunkSize);
+    const chunkCoordinatesMap = {};
+
+    chunkRuns.forEach(run => {
+      // Extract start coordinate first before deleting
+      run.startCoordinate =
+        run.coordinates && run.coordinates.length > 0 ? run.coordinates[0] : null;
+
+      // Map coordinates to run ID
+      chunkCoordinatesMap[run.id] = run.coordinates || [];
+
+      // Reference which chunk file this run's coordinates belong to
+      run.chunkFile = `coords_part_${chunkIndex}.json`;
+
+      // Delete the massive coordinates array from the index run object
+      delete run.coordinates;
+    });
+
+    const chunkFileName = `coords_part_${chunkIndex}.json`;
+    const chunkFilePath = path.join(outputDir, chunkFileName);
+
+    try {
+      fs.writeFileSync(chunkFilePath, JSON.stringify(chunkCoordinatesMap, null, 2), 'utf8');
+      newChunkFiles.push(chunkFileName);
+      console.log(`Saved coordinate chunk file: ${chunkFileName}`);
+    } catch (err) {
+      console.error(`Failed to write coordinate chunk file ${chunkFileName}:`, err.message);
+    }
+  }
+
+  const chunkFiles = [...existingChunks, ...newChunkFiles];
+  const allRuns = [...newRuns, ...existingRuns];
+
+  // Sort all runs chronological: newest first
+  allRuns.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   // Extract and cluster unique locations to enable unbiased page load map-centering
-  const uniqueLocations = clusterLocations(runs);
+  const uniqueLocations = clusterLocations(allRuns);
 
   // Retrieve pretty names for each unique location with caching
   const cache = loadCache();
@@ -247,55 +316,21 @@ async function main() {
     saveCache(cache);
   }
 
-  // Chunk the run coordinates into separate files to avoid large file issues and optimize loading
-  const chunkFiles = [];
-  const chunkSize = 20;
-  const totalRuns = runs.length;
-
-  for (let i = 0; i < totalRuns; i += chunkSize) {
-    const chunkIndex = Math.floor(i / chunkSize) + 1;
-    const chunkRuns = runs.slice(i, i + chunkSize);
-    const chunkCoordinatesMap = {};
-
-    chunkRuns.forEach(run => {
-      // Extract start coordinate first before deleting
-      run.startCoordinate = run.coordinates && run.coordinates.length > 0 ? run.coordinates[0] : null;
-
-      // Map coordinates to run ID
-      chunkCoordinatesMap[run.id] = run.coordinates || [];
-
-      // Reference which chunk file this run's coordinates belong to
-      run.chunkFile = `coords_part_${chunkIndex}.json`;
-
-      // Delete the massive coordinates array from the index run object
-      delete run.coordinates;
-    });
-
-    const chunkFileName = `coords_part_${chunkIndex}.json`;
-    const chunkFilePath = path.join(outputDir, chunkFileName);
-
-    try {
-      fs.writeFileSync(chunkFilePath, JSON.stringify(chunkCoordinatesMap, null, 2), 'utf8');
-      chunkFiles.push(chunkFileName);
-      console.log(`Saved coordinate chunk file: ${chunkFileName}`);
-    } catch (err) {
-      console.error(`Failed to write coordinate chunk file ${chunkFileName}:`, err.message);
-    }
-  }
-
   // Write to runs.json (structured format)
   const outputData = {
     locations: uniqueLocations,
     chunks: chunkFiles,
-    runs: runs,
+    runs: allRuns,
   };
 
   try {
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(outputData, null, 2), 'utf8');
     console.log('\n=== Parsing complete! ===');
-    console.log(`🟢 Successfully processed: ${successCount} runs`);
+    console.log(`🟢 Successfully processed: ${successCount} new runs`);
     console.log(`📍 Found unique run regions: ${uniqueLocations.length}`);
-    console.log(`📦 Created ${chunkFiles.length} coordinate chunk files`);
+    console.log(
+      `📦 Created ${newChunkFiles.length} new coordinate chunk files (Total: ${chunkFiles.length})`
+    );
     if (wrongSportCount > 0) {
       console.log(`🟡 Skipped (wrong sport):   ${wrongSportCount} activities`);
     }
@@ -324,8 +359,11 @@ function clusterLocations(runs, thresholdKm = 40) {
   const centers = [];
 
   runs.forEach(run => {
-    if (!run.coordinates || run.coordinates.length === 0) return;
-    const [lat, lon] = run.coordinates[0];
+    const coord =
+      run.startCoordinate ||
+      (run.coordinates && run.coordinates.length > 0 ? run.coordinates[0] : null);
+    if (!coord) return;
+    const [lat, lon] = coord;
 
     // Check if close to an already discovered region center
     const isMatched = centers.some(center => {
