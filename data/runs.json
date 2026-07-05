@@ -1,6 +1,11 @@
 {
   "locations": [
     {
+      "lat": 41.15137,
+      "lon": -8.3201,
+      "name": "Penafiel, Portugal"
+    },
+    {
       "lat": 38.0027,
       "lon": 23.72952,
       "name": "Athens, Greece"
@@ -54,11 +59,6 @@
       "lat": 35.32978,
       "lon": 25.13889,
       "name": "Heraklion Municipal Unit, Greece"
-    },
-    {
-      "lat": 41.15142,
-      "lon": -8.32083,
-      "name": "Penafiel, Portugal"
     },
     {
       "lat": 38.64333,
@@ -229,9 +229,62 @@
     "coords_part_40.json",
     "coords_part_41.json",
     "coords_part_42.json",
-    "coords_part_43.json"
+    "coords_part_43.json",
+    "coords_part_44.json"
   ],
   "runs": [
+    {
+      "id": "2026-06-26T13:13:41Z",
+      "date": "2026-06-26T13:13:41Z",
+      "sport": "Running",
+      "distanceMeters": 6446,
+      "durationSeconds": 2013,
+      "paceSecondsPerKm": 312,
+      "startCoordinate": [
+        41.15137,
+        -8.3201
+      ],
+      "chunkFile": "coords_part_44.json"
+    },
+    {
+      "id": "2026-06-25T09:18:32Z",
+      "date": "2026-06-25T09:18:32Z",
+      "sport": "Running",
+      "distanceMeters": 6548,
+      "durationSeconds": 2085,
+      "paceSecondsPerKm": 318,
+      "startCoordinate": [
+        41.15136,
+        -8.3205
+      ],
+      "chunkFile": "coords_part_44.json"
+    },
+    {
+      "id": "2026-06-23T10:03:40Z",
+      "date": "2026-06-23T10:03:40Z",
+      "sport": "Running",
+      "distanceMeters": 4824,
+      "durationSeconds": 2238,
+      "paceSecondsPerKm": 464,
+      "startCoordinate": [
+        41.17432,
+        -8.35058
+      ],
+      "chunkFile": "coords_part_44.json"
+    },
+    {
+      "id": "2026-06-23T09:04:02Z",
+      "date": "2026-06-23T09:04:02Z",
+      "sport": "Running",
+      "distanceMeters": 6547,
+      "durationSeconds": 2094,
+      "paceSecondsPerKm": 320,
+      "startCoordinate": [
+        41.15132,
+        -8.32033
+      ],
+      "chunkFile": "coords_part_44.json"
+    },
     {
       "id": "2026-06-16T07:10:40.997Z",
       "date": "2026-06-16T07:10:40.997Z",
