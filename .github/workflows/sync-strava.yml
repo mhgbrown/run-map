@@ -29,7 +29,6 @@ jobs:
         env:
           STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
-          REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }} # Note: sync-strava.js checks process.env.STRAVA_REFRESH_TOKEN or process.env.REFRESH_TOKEN but wait, let's make sure it's mapped to STRAVA_REFRESH_TOKEN!
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
 
       - name: Parse GPX/TCX activities to runs database
