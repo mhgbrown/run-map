@@ -346,22 +346,6 @@ export class MapManager {
   }
 
   /**
-   * Fit the map to bounds of all rendered runs
-   */
-  autoFitAllRuns() {
-    const bounds = L.latLngBounds();
-    Object.values(this.routeLayers).forEach(layer => {
-      bounds.extend(layer.foreground.getBounds());
-    });
-
-    if (bounds.isValid()) {
-      this.map.fitBounds(bounds, {
-        padding: [40, 40],
-      });
-    }
-  }
-
-  /**
    * Remove all route polylines from the map
    */
   clearRoutes() {
