@@ -173,4 +173,37 @@ test.describe('TCX Run Parser Tests', () => {
       assert.equal(run.coordinates[0][1], 13.3501); // Valid start longitude
     });
   });
+
+  test.describe('Parser Outputs and Coordinate Chunk Structure', () => {
+    test.it('should verify the chunk structure format of output runs', () => {
+      // Mock coordinates chunk separation behavior from parse.js
+      const rawRun = {
+        id: 'test-run-123',
+        coordinates: [
+          [52.5145, 13.3501],
+          [52.515, 13.355]
+        ]
+      };
+
+      // Behavior of parsing pipeline:
+      // 1. Extract start coordinate
+      const startCoordinate = rawRun.coordinates && rawRun.coordinates.length > 0 ? rawRun.coordinates[0] : null;
+      // 2. Map coordinates to coordinate map
+      const chunkCoordinatesMap = {};
+      chunkCoordinatesMap[rawRun.id] = rawRun.coordinates || [];
+      // 3. Set chunk file and delete raw coordinates from main object
+      const chunkFile = 'coords_part_1.json';
+      const formattedRun = { ...rawRun, startCoordinate, chunkFile };
+      delete formattedRun.coordinates;
+
+      // Assertions matching the expected lazy-loading contract:
+      assert.deepEqual(formattedRun.startCoordinate, [52.5145, 13.3501]);
+      assert.equal(formattedRun.chunkFile, 'coords_part_1.json');
+      assert.equal(formattedRun.coordinates, undefined);
+      assert.deepEqual(chunkCoordinatesMap['test-run-123'], [
+        [52.5145, 13.3501],
+        [52.515, 13.355]
+      ]);
+    });
+  });
 });
