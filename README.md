@@ -68,7 +68,11 @@ To process your raw TCX/GPX files and build the compiled web data structure:
    ```bash
    npm run parse
    ```
-4. This will run `src/parser/parse.js`, parse the XML inputs, fetch and cache location names (via OpenStreetMap's reverse geocoding API), compile them chronologically, and save them as an optimized `data/runs.json` metadata database, alongside lightweight coordinate chunk files (`data/coords_part_X.json`) containing the detailed GPS track coordinates.
+4. This will run `src/parser/parse.js`, which features **incremental parsing**:
+   - It loads any already-parsed activities from `data/runs.json` and skips files in `data/raw/` whose activities have already been parsed (matching on their unique activity timestamp ID).
+   - This keeps processing incredibly fast, respects reverse geocoding API rate limits, and prevents duplicate activities.
+   - Any newly discovered activities are parsed, geocoded, and appended to the existing database.
+   - New GPS coordinates are chunked into new sequential coordinate files (e.g., `coords_part_N.json`) without modifying or overwriting existing chunk files.
 
 ---
 
