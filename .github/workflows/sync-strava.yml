@@ -1,0 +1,48 @@
+name: Sync Strava Activities
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight UTC
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync activities from Strava
+        run: npm run sync-strava
+        env:
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }} # Note: sync-strava.js checks process.env.STRAVA_REFRESH_TOKEN or process.env.REFRESH_TOKEN but wait, let's make sure it's mapped to STRAVA_REFRESH_TOKEN!
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+
+      - name: Parse GPX/TCX activities to runs database
+        run: npm run parse
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: auto-sync recent Strava activities and parse runs"
+            git push
+          else
+            echo "No new activities to commit."
+          fi
