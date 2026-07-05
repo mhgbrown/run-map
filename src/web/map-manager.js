@@ -4,13 +4,27 @@ import { getRunColor } from './utils.js';
 export class MapManager {
   constructor(mapContainerId, callbacks = {}) {
     this.mapContainerId = mapContainerId;
-    this.callbacks = callbacks; // { onRunSelected, onRunHovered }
+    this.callbacks = callbacks; // { onRunSelected, onRunHovered, onLoadChunksRequired }
     this.map = null;
+    this.runs = [];
 
     // Store polyline layers mapped by runId
     // Each run will have an object: { foreground: L.polyline, background: L.polyline, run: runData }
     this.routeLayers = {};
+    
+    // Store circular start markers mapped by runId
+    this.startPointLayers = {};
+    
     this.activeRunId = null;
+    this._isMovingProgrammatically = false;
+  }
+
+  /**
+   * Store the full runs list
+   * @param {Array} runs 
+   */
+  setRuns(runs) {
+    this.runs = runs;
   }
 
   /**
@@ -39,6 +53,115 @@ export class MapManager {
       updateInterval: 50, // Refresh tiles much faster during zoom/panning animations
       keepBuffer: 8, // Keep more loaded tiles in buffer to avoid gray/blurry flashes
     }).addTo(this.map);
+
+    // Dynamic viewport / lazy chunk loading listener
+    this.map.on('moveend', () => {
+      this.handleMapMove();
+    });
+  }
+
+  /**
+   * Handle map zoom/panning dynamically to trigger lazy-loading of visible runs
+   */
+  async handleMapMove() {
+    const zoom = this.map.getZoom();
+    if (zoom >= 11) {
+      await this.loadVisibleChunksAndRender();
+    } else {
+      this.renderStartPointsOnly();
+    }
+  }
+
+  /**
+   * Render lightweight start markers for all runs at low zoom levels
+   */
+  renderStartPointsOnly() {
+    // Clear detailed routes
+    this.clearRoutes();
+
+    if (!this.runs || this.runs.length === 0) return;
+
+    // Clear existing start points
+    this.clearStartPoints();
+
+    const sortedRuns = [...this.runs].sort((a, b) => a.distanceMeters - b.distanceMeters);
+
+    this.runs.forEach(run => {
+      const coord = run.startCoordinate || (run.coordinates && run.coordinates[0]);
+      if (!coord) return;
+
+      const rank = sortedRuns.findIndex(r => r.id === run.id);
+      const runColor = getRunColor(rank, sortedRuns.length);
+
+      const marker = L.circleMarker(coord, {
+        radius: 6,
+        fillColor: runColor,
+        color: '#ffffff',
+        weight: 1.5,
+        opacity: 1,
+        fillOpacity: 0.9,
+        interactive: true,
+      }).addTo(this.map);
+
+      // Simple tooltip on hover
+      marker.bindTooltip(`Run ${new Date(run.date).toLocaleDateString()}: ${(run.distanceMeters / 1000).toFixed(2)} km`, {
+        direction: 'top',
+        className: 'custom-tooltip',
+      });
+
+      marker.on('click', () => {
+        this.setView(coord, CONFIG.targetZoom || 13);
+        if (this.callbacks.onRunSelected) {
+          this.callbacks.onRunSelected(run.id, true);
+        }
+      });
+
+      marker.on('mouseover', () => {
+        if (this.callbacks.onRunHovered) {
+          this.callbacks.onRunHovered(run.id);
+        }
+      });
+
+      marker.on('mouseout', () => {
+        if (this.callbacks.onRunHovered) {
+          this.callbacks.onRunHovered(null);
+        }
+      });
+
+      this.startPointLayers[run.id] = marker;
+    });
+  }
+
+  /**
+   * Identify runs in viewport, trigger fetching of their coordinate chunks, and render detailed routes
+   */
+  async loadVisibleChunksAndRender() {
+    // Hide/clear start point circular markers when showing detailed tracks
+    this.clearStartPoints();
+
+    if (!this.runs || this.runs.length === 0) return;
+
+    const bounds = this.map.getBounds();
+    
+    // Find runs whose start coordinates are inside the current map viewport
+    const visibleRuns = this.runs.filter(run => {
+      const coord = run.startCoordinate || (run.coordinates && run.coordinates[0]);
+      if (!coord) return false;
+      return bounds.contains(L.latLng(coord));
+    });
+
+    // Identify which chunks need loading
+    const chunkFilesNeeded = [...new Set(
+      visibleRuns
+        .filter(run => !run.coordinates && run.chunkFile)
+        .map(run => run.chunkFile)
+    )];
+
+    if (chunkFilesNeeded.length > 0 && this.callbacks.onLoadChunksRequired) {
+      await this.callbacks.onLoadChunksRequired(chunkFilesNeeded);
+    } else {
+      this.renderRoutes(this.runs);
+    }
   }
 
   /**
@@ -46,6 +169,12 @@ export class MapManager {
    * @param {Array} runs
    */
   renderRoutes(runs) {
+    const zoom = this.map.getZoom();
+    if (zoom < 11) {
+      this.renderStartPointsOnly();
+      return;
+    }
+
     // Clear any existing layers
     this.clearRoutes();
 
@@ -242,6 +371,42 @@ export class MapManager {
     });
     this.routeLayers = {};
     this.activeRunId = null;
+  }
+
+  /**
+   * Remove all start point circular markers from the map
+   */
+  clearStartPoints() {
+    Object.values(this.startPointLayers).forEach(layer => {
+      this.map.removeLayer(layer);
+    });
+    this.startPointLayers = {};
+  }
+
+  /**
+   * Fit the map to bounds of all rendered runs (handling low zoom gracefully)
+   */
+  autoFitAllRuns() {
+    const bounds = L.latLngBounds();
+
+    // If zoomed in, fit to routes; if zoomed out, fit to start coordinates
+    const zoom = this.map.getZoom();
+    if (zoom >= 11 && Object.keys(this.routeLayers).length > 0) {
+      Object.values(this.routeLayers).forEach(layer => {
+        bounds.extend(layer.foreground.getBounds());
+      });
+    } else {
+      this.runs.forEach(run => {
+        const coord = run.startCoordinate || (run.coordinates && run.coordinates[0]);
+        if (coord) bounds.extend(L.latLng(coord));
+      });
+    }
+
+    if (bounds.isValid()) {
+      this.map.fitBounds(bounds, {
+        padding: [40, 40],
+      });
+    }
   }
 
   /**

@@ -17,6 +17,10 @@ class RunningApp {
     this.mapManager = null;
     this.activeRunId = null;
 
+    // Lazy loading coordinate chunk state
+    this.loadedChunks = new Set();
+    this.loadingChunks = new Map(); // chunkFile -> Promise
+
     // UI Elements
     this.titleElement = document.getElementById('site-title');
     this.sidebarContainer = document.getElementById('runs-list');
@@ -91,14 +95,109 @@ class RunningApp {
    */
   initMap() {
     this.mapManager = new MapManager('map', {
-      onRunSelected: (runId, panSidebar = true) => {
+      onRunSelected: async (runId, panSidebar = true) => {
+        await this.ensureCoordinatesLoadedForRun(runId);
         this.selectRun(runId, panSidebar);
       },
-      onRunHovered: runId => {
+      onRunHovered: async runId => {
+        if (runId) {
+          await this.ensureCoordinatesLoadedForRun(runId);
+        }
         this.hoverRun(runId);
       },
+      onLoadChunksRequired: async (chunkFiles) => {
+        return await this.loadChunks(chunkFiles);
+      }
     });
     this.mapManager.init();
+  }
+
+  /**
+   * Ensure coordinates are loaded for a specific run (e.g. on click or hover)
+   */
+  async ensureCoordinatesLoadedForRun(runId) {
+    const run = this.runs.find(r => r.id === runId);
+    if (run && !run.coordinates && run.chunkFile) {
+      await this.loadChunks([run.chunkFile]);
+    }
+  }
+
+  /**
+   * Load specific coordinate chunk files dynamically on-demand
+   * @param {Array<string>} chunkFiles List of chunk filenames to fetch
+   * @returns {Promise<Object>} Map of runId -> coordinates loaded in this batch
+   */
+  async loadChunks(chunkFiles) {
+    const chunksToFetch = chunkFiles.filter(file => !this.loadedChunks.has(file));
+    if (chunksToFetch.length === 0) {
+      // Check if any are currently loading and wait for them
+      const outstandingPromises = chunkFiles
+        .map(file => this.loadingChunks.get(file))
+        .filter(Boolean);
+      if (outstandingPromises.length > 0) {
+        await Promise.all(outstandingPromises);
+      }
+      return {};
+    }
+
+    // Show map loading indicator
+    const mapLoader = document.getElementById('map-loader');
+    if (mapLoader) {
+      mapLoader.classList.remove('hidden');
+      mapLoader.style.opacity = '1';
+    }
+
+    const fetchPromises = chunksToFetch.map(chunkFile => {
+      const promise = fetch(`./data/${chunkFile}`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Failed to fetch coordinate chunk: ${chunkFile}`);
+          }
+          return res.json();
+        })
+        .then(chunkContent => {
+          this.loadedChunks.add(chunkFile);
+          this.loadingChunks.delete(chunkFile);
+
+          // Merge loaded coordinates into in-memory runs list
+          this.runs.forEach(run => {
+            if (chunkContent[run.id]) {
+              run.coordinates = chunkContent[run.id];
+            }
+          });
+          return chunkContent;
+        })
+        .catch(err => {
+          this.loadingChunks.delete(chunkFile);
+          console.error(`Error loading chunk ${chunkFile}:`, err);
+          return {};
+        });
+
+      this.loadingChunks.set(chunkFile, promise);
+      return promise;
+    });
+
+    try {
+      const chunkContents = await Promise.all(fetchPromises);
+      
+      // Re-render routes that have newly loaded coordinates
+      if (this.mapManager) {
+        this.mapManager.renderRoutes(this.runs);
+      }
+
+      // Return combined new coordinates for map layers to draw
+      return Object.assign({}, ...chunkContents);
+    } finally {
+      // Hide map loading indicator if no more chunks are loading
+      if (this.loadingChunks.size === 0 && mapLoader) {
+        mapLoader.style.opacity = '0';
+        setTimeout(() => {
+          if (this.loadingChunks.size === 0) {
+            mapLoader.classList.add('hidden');
+          }
+        }, 300);
+      }
+    }
   }
 
   /**
@@ -119,32 +218,6 @@ class RunningApp {
       if (this.runs.length === 0) {
         this.showEmptyState();
         return;
-      }
-
-      // Fetch and reassemble all coordinate chunks in parallel if chunks are present
-      const chunks = data.chunks || [];
-      if (chunks.length > 0) {
-        const chunkPromises = chunks.map(chunkFile =>
-          fetch(`./data/${chunkFile}`).then(res => {
-            if (!res.ok) {
-              throw new Error(`Failed to fetch coordinate chunk: ${chunkFile}`);
-            }
-            return res.json();
-          })
-        );
-        const chunkContents = await Promise.all(chunkPromises);
-
-        // Recombine all run coordinates in-memory
-        const coordinatesMap = {};
-        chunkContents.forEach(chunkMap => {
-          Object.assign(coordinatesMap, chunkMap);
-        });
-
-        this.runs.forEach(run => {
-          if (coordinatesMap[run.id]) {
-            run.coordinates = coordinatesMap[run.id];
-          }
-        });
       }
 
       this.hideEmptyState();
@@ -171,6 +244,11 @@ class RunningApp {
 
       this.renderStats(initialRunsToRender);
       this.renderSidebar(initialRunsToRender);
+
+      // Give runs to map-manager first
+      this.mapManager.setRuns(this.runs);
+
+      // Render the initial view
       this.mapManager.renderRoutes(this.runs);
 
       // If deep linked, center map on deep linked location center
