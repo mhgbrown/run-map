@@ -1,14 +1,14 @@
 {
   "locations": [
     {
+      "lat": 38.05028,
+      "lon": 23.79784,
+      "name": "Athens, Greece"
+    },
+    {
       "lat": 41.15137,
       "lon": -8.3201,
       "name": "Penafiel, Portugal"
-    },
-    {
-      "lat": 38.0027,
-      "lon": 23.72952,
-      "name": "Athens, Greece"
     },
     {
       "lat": 52.47478,
@@ -230,9 +230,36 @@
     "coords_part_41.json",
     "coords_part_42.json",
     "coords_part_43.json",
-    "coords_part_44.json"
+    "coords_part_44.json",
+    "coords_part_45.json"
   ],
   "runs": [
+    {
+      "id": "2026-07-07T07:05:37Z",
+      "date": "2026-07-07T07:05:37Z",
+      "sport": "Running",
+      "distanceMeters": 3501,
+      "durationSeconds": 1236,
+      "paceSecondsPerKm": 353,
+      "startCoordinate": [
+        38.05028,
+        23.79784
+      ],
+      "chunkFile": "coords_part_45.json"
+    },
+    {
+      "id": "2026-07-07T05:55:04Z",
+      "date": "2026-07-07T05:55:04Z",
+      "sport": "Running",
+      "distanceMeters": 9561,
+      "durationSeconds": 3537,
+      "paceSecondsPerKm": 370,
+      "startCoordinate": [
+        38.00263,
+        23.72924
+      ],
+      "chunkFile": "coords_part_45.json"
+    },
     {
       "id": "2026-06-26T13:13:41Z",
       "date": "2026-06-26T13:13:41Z",
