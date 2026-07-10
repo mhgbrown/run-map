@@ -207,9 +207,9 @@ export class MapManager {
       }).addTo(this.map);
 
       // Create interactive foreground polyline
+      const isSelected = run.id === this.activeRunId;
       const fgPolyline = L.polyline(latLngs, {
-        ...CONFIG.routeStyles.normal,
-        color: runColor,
+        ...(isSelected ? CONFIG.routeStyles.active : { ...CONFIG.routeStyles.normal, color: runColor }),
         interactive: true,
       }).addTo(this.map);
 
@@ -240,6 +240,11 @@ export class MapManager {
         run,
         normalColor: runColor,
       };
+
+      if (isSelected) {
+        fgPolyline.bringToFront();
+        fgPolyline.openPopup();
+      }
 
       // Set up event listeners for map-to-sidebar interaction
       fgPolyline.on('mouseover', () => {
@@ -288,7 +293,16 @@ export class MapManager {
 
     this.activeRunId = runId;
     const layer = this.routeLayers[runId];
-    if (!layer) return;
+    if (!layer) {
+      const run = this.runs.find(r => r.id === runId);
+      if (run && zoomToTrack) {
+        const coord = run.startCoordinate || (run.coordinates && run.coordinates[0]);
+        if (coord) {
+          this.setView(coord, CONFIG.targetZoom || 13);
+        }
+      }
+      return;
+    }
 
     // Apply active styles
     layer.foreground.setStyle(CONFIG.routeStyles.active);
