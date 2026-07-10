@@ -497,7 +497,8 @@ class RunningApp {
         }
       });
 
-      card.addEventListener('click', () => {
+      card.addEventListener('click', async () => {
+        await this.ensureCoordinatesLoadedForRun(run.id);
         this.selectRun(run.id, false); // select it in our state (don't scroll since user clicked it)
         this.mapManager.focusRun(run.id, true); // focus map on it
       });
