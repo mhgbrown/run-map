@@ -212,9 +212,14 @@
       </div>
 
       <!-- Scrollable Runs Cards List -->
+      <!-- On desktop this pane owns the scrolling, so it must be allowed to
+           shrink below its content height: md:flex-shrink and md:min-h-0 are
+           both required, otherwise the list grows to fit every card and the
+           overflow is clipped by the sidebar instead of scrolling.
+           On mobile the sidebar itself scrolls, so the list stays unshrunk. -->
       <div
         id="runs-list"
-        class="flex-shrink-0 md:flex-grow overflow-y-visible md:overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar bg-slate-50/30 transition-opacity duration-300"
+        class="flex-shrink-0 md:flex-grow md:flex-shrink md:min-h-0 overflow-y-visible md:overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar bg-slate-50/30 transition-opacity duration-300"
       >
         <!-- Cards rendered dynamically via JavaScript -->
       </div>
