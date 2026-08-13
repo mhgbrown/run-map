@@ -5,6 +5,7 @@ const path = require('path');
 const { parseTCX } = require('../src/parser/tcx-parser');
 const { parseGPX } = require('../src/parser/gpx-parser');
 const { haversineDistance } = require('../src/parser/utils');
+const { clusterLocations } = require('../src/parser/parse');
 
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 
@@ -26,6 +27,77 @@ test.describe('TCX Run Parser Tests', () => {
       const lat = 52.52;
       const lon = 13.405;
       assert.equal(haversineDistance(lat, lon, lat, lon), 0);
+    });
+  });
+
+  test.describe('Location Clustering', () => {
+    const BERLIN = [52.52, 13.405];
+    const BERLIN_NEARBY = [52.5145, 13.3501]; // a few km from BERLIN
+    const ATHENS = [38.0027, 23.729];
+
+    const mkRun = (id, startCoordinate) => ({ id, startCoordinate });
+
+    test.it('should group nearby runs into a single region', () => {
+      const runs = [mkRun('a', BERLIN), mkRun('b', BERLIN_NEARBY)];
+      const locations = clusterLocations(runs);
+
+      assert.equal(locations.length, 1);
+      assert.equal(runs[0].locationIndex, 0);
+      assert.equal(runs[1].locationIndex, 0);
+    });
+
+    test.it('should create separate regions for far apart runs', () => {
+      const runs = [mkRun('a', BERLIN), mkRun('b', ATHENS)];
+      const locations = clusterLocations(runs);
+
+      assert.equal(locations.length, 2);
+      assert.equal(runs[0].locationIndex, 0);
+      assert.equal(runs[1].locationIndex, 1);
+    });
+
+    test.it('should assign every run a locationIndex pointing at its region', () => {
+      const runs = [mkRun('a', BERLIN), mkRun('b', ATHENS), mkRun('c', BERLIN_NEARBY)];
+      const locations = clusterLocations(runs);
+
+      runs.forEach(run => {
+        const region = locations[run.locationIndex];
+        assert.ok(region, `run ${run.id} should map to an existing region`);
+        // The run must genuinely be within the clustering radius of its region
+        const distanceKm =
+          haversineDistance(
+            region.lat,
+            region.lon,
+            run.startCoordinate[0],
+            run.startCoordinate[1]
+          ) / 1000;
+        assert.ok(distanceKm <= 40, `run ${run.id} should be within 40km of its region`);
+      });
+    });
+
+    test.it('should assign the closest region when several are in range', () => {
+      // Two centers ~72km apart form separate regions, then a third run sits
+      // 5.6km from the second center (and 66.7km from the first)
+      const runs = [mkRun('a', [52.0, 13.4]), mkRun('b', [52.65, 13.4]), mkRun('c', [52.6, 13.4])];
+      const locations = clusterLocations(runs);
+
+      assert.equal(locations.length, 2);
+      assert.equal(runs[2].locationIndex, 1, 'should pick the nearer region, not the first match');
+    });
+
+    test.it('should fall back to the first coordinate when startCoordinate is absent', () => {
+      const runs = [{ id: 'a', coordinates: [BERLIN, BERLIN_NEARBY] }];
+      const locations = clusterLocations(runs);
+
+      assert.equal(locations.length, 1);
+      assert.equal(runs[0].locationIndex, 0);
+    });
+
+    test.it('should set locationIndex to null for runs without coordinates', () => {
+      const runs = [mkRun('a', BERLIN), { id: 'b' }];
+      const locations = clusterLocations(runs);
+
+      assert.equal(locations.length, 1);
+      assert.equal(runs[1].locationIndex, null);
     });
   });
 

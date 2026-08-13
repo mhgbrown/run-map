@@ -1,12 +1,5 @@
 import { CONFIG } from './config.js';
-import {
-  formatDate,
-  formatDistance,
-  formatDuration,
-  formatPace,
-  getRunColor,
-  haversineDistance,
-} from './utils.js';
+import { formatDate, formatDistance, formatDuration, formatPace, getRunColor } from './utils.js';
 import { MapManager } from './map-manager.js';
 
 class RunningApp {
@@ -97,7 +90,7 @@ class RunningApp {
     this.mapManager = new MapManager('map', {
       onRunSelected: async (runId, panSidebar = true) => {
         await this.ensureCoordinatesLoadedForRun(runId);
-        this.selectRun(runId, panSidebar);
+        this.selectRunWithLocation(runId, panSidebar);
       },
       onRunHovered: async runId => {
         if (runId) {
@@ -292,7 +285,6 @@ class RunningApp {
     // Setup the change event listener
     select.addEventListener('change', e => {
       const val = e.target.value;
-      const url = new URL(window.location);
 
       if (val === 'all') {
         this.selectedLocationIndex = null;
@@ -303,8 +295,7 @@ class RunningApp {
         this.mapManager.autoFitAllRuns();
 
         // Update URL
-        url.searchParams.delete('location');
-        window.history.pushState({}, '', url);
+        this.updateLocationQueryParam(null);
       } else {
         const index = parseInt(val, 10);
         if (!isNaN(index) && this.locations[index]) {
@@ -322,30 +313,79 @@ class RunningApp {
           this.mapManager.setView([loc.lat, loc.lon], CONFIG.targetZoom || 13);
 
           // Update URL
-          url.searchParams.set('location', loc.name);
-          window.history.pushState({}, '', url);
+          this.updateLocationQueryParam(loc.name);
         }
       }
     });
   }
 
   /**
-   * Retrieve runs that fall within 40km of the currently selected location
+   * Retrieve runs belonging to the currently selected location/region.
+   * Region membership is assigned by the parser (see clusterLocations).
    * @returns {Array} Filtered runs
    */
   getFilteredRuns() {
     if (this.selectedLocationIndex === null || this.selectedLocationIndex === undefined) {
       return this.runs;
     }
-    const loc = this.locations[this.selectedLocationIndex];
-    const thresholdKm = 40;
-    return this.runs.filter(run => {
-      const startCoord = run.startCoordinate || (run.coordinates && run.coordinates[0]);
-      if (!startCoord) return false;
-      const [lat, lon] = startCoord;
-      const dist = haversineDistance(loc.lat, loc.lon, lat, lon);
-      return dist / 1000 <= thresholdKm;
-    });
+    return this.runs.filter(run => run.locationIndex === this.selectedLocationIndex);
+  }
+
+  /**
+   * Find the location/region a run belongs to. The parser assigns this when
+   * clustering locations, so no distance calculation is needed here.
+   * @param {Object} run
+   * @returns {number|null} Index into this.locations, or null if unassigned
+   */
+  findLocationIndexForRun(run) {
+    if (!run || !this.locations || this.locations.length === 0) return null;
+
+    const index = run.locationIndex;
+    if (typeof index !== 'number' || !this.locations[index]) return null;
+
+    return index;
+  }
+
+  /**
+   * Reflect the current location filter in the URL query string
+   * @param {string|null} locationName Pass null to clear the parameter
+   */
+  updateLocationQueryParam(locationName) {
+    const url = new URL(window.location);
+    if (locationName) {
+      url.searchParams.set('location', locationName);
+    } else {
+      url.searchParams.delete('location');
+    }
+    window.history.pushState({}, '', url);
+  }
+
+  /**
+   * Switch the sidebar/stats to the region containing the given run.
+   * Leaves the run selection untouched so the caller can select it afterwards.
+   * @param {string} runId
+   * @returns {boolean} True if the location filter changed
+   */
+  selectLocationForRun(runId) {
+    const run = this.runs.find(r => r.id === runId);
+    const index = this.findLocationIndexForRun(run);
+
+    // Nothing to do if the run has no region, or that region is already active
+    if (index === null || index === this.selectedLocationIndex) return false;
+
+    this.selectedLocationIndex = index;
+
+    const select = document.getElementById('location-select');
+    if (select) {
+      select.value = index;
+    }
+
+    const filtered = this.getFilteredRuns();
+    this.renderStats(filtered);
+    this.renderSidebar(filtered);
+    this.updateLocationQueryParam(this.locations[index].name);
+
+    return true;
   }
 
   /**
@@ -499,7 +539,11 @@ class RunningApp {
 
       card.addEventListener('click', async () => {
         await this.ensureCoordinatesLoadedForRun(run.id);
-        this.selectRun(run.id, false); // select it in our state (don't scroll since user clicked it)
+
+        // Select the run and switch the sidebar/stats to its region. Don't
+        // scroll by default since the user clicked this card themselves.
+        this.selectRunWithLocation(run.id, false);
+
         // NOTE: focusRun must stay outside selectRun, which early-returns when the
         // run is already active. Keeping it here lets re-clicking the selected run
         // re-frame the map on its track.
@@ -508,6 +552,25 @@ class RunningApp {
 
       this.sidebarContainer.appendChild(card);
     });
+  }
+
+  /**
+   * Select a run and switch the sidebar/stats to the region containing it
+   * @param {string} runId
+   * @param {boolean} scrollIntoView Whether to scroll the card into view when
+   *   the region (and therefore the sidebar list) did not change
+   */
+  selectRunWithLocation(runId, scrollIntoView = true) {
+    // Switching region rebuilds the sidebar cards, discarding selection styling
+    const locationChanged = this.selectLocationForRun(runId);
+    if (locationChanged) {
+      // The card elements were replaced; reset so selectRun re-applies the
+      // active styling to the newly created card.
+      this.activeRunId = null;
+    }
+
+    // Always scroll after a rebuild, since the card's position has changed
+    this.selectRun(runId, scrollIntoView || locationChanged);
   }
 
   /**

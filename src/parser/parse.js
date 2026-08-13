@@ -352,8 +352,14 @@ async function main() {
 }
 
 /**
- * Cluster runs geographically to extract unique regions/cities
- * @param {Array} runs
+ * Cluster runs geographically to extract unique regions/cities, and tag every
+ * run with the index of the region it belongs to.
+ *
+ * Assigning the region here (rather than re-deriving it in the browser) keeps
+ * the frontend simple: it can filter by an exact `locationIndex` match instead
+ * of recomputing distances against every location on each interaction.
+ *
+ * @param {Array} runs Mutated in place: each run gains a `locationIndex`
  * @param {number} thresholdKm (Radius to group runs together, e.g. 40km)
  * @returns {Array<{lat: number, lon: number}>} Unique location centers
  */
@@ -364,17 +370,29 @@ function clusterLocations(runs, thresholdKm = 40) {
     const coord =
       run.startCoordinate ||
       (run.coordinates && run.coordinates.length > 0 ? run.coordinates[0] : null);
-    if (!coord) return;
+    if (!coord) {
+      run.locationIndex = null;
+      return;
+    }
     const [lat, lon] = coord;
 
-    // Check if close to an already discovered region center
-    const isMatched = centers.some(center => {
-      const distanceMeters = haversineDistance(center.lat, center.lon, lat, lon);
-      return distanceMeters / 1000 <= thresholdKm;
+    // Find the closest already discovered region center within the threshold
+    let closestIndex = -1;
+    let closestDistanceKm = Infinity;
+    centers.forEach((center, index) => {
+      const distanceKm = haversineDistance(center.lat, center.lon, lat, lon) / 1000;
+      if (distanceKm <= thresholdKm && distanceKm < closestDistanceKm) {
+        closestDistanceKm = distanceKm;
+        closestIndex = index;
+      }
     });
 
-    if (!isMatched) {
+    if (closestIndex === -1) {
+      // Start a new region centered on this run
       centers.push({ lat, lon });
+      run.locationIndex = centers.length - 1;
+    } else {
+      run.locationIndex = closestIndex;
     }
   });
 
@@ -384,3 +402,7 @@ function clusterLocations(runs, thresholdKm = 40) {
 if (require.main === module) {
   main();
 }
+
+module.exports = {
+  clusterLocations,
+};
