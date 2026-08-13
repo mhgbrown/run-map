@@ -500,6 +500,9 @@ class RunningApp {
       card.addEventListener('click', async () => {
         await this.ensureCoordinatesLoadedForRun(run.id);
         this.selectRun(run.id, false); // select it in our state (don't scroll since user clicked it)
+        // NOTE: focusRun must stay outside selectRun, which early-returns when the
+        // run is already active. Keeping it here lets re-clicking the selected run
+        // re-frame the map on its track.
         this.mapManager.focusRun(run.id, true); // focus map on it
       });
 

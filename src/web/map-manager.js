@@ -17,6 +17,12 @@ export class MapManager {
 
     this.activeRunId = null;
     this._isMovingProgrammatically = false;
+
+    // Run that should be focused as soon as its route layer exists
+    this._pendingFocusRunId = null;
+
+    // Fingerprint of the last rendered route set, guards redundant rebuilds
+    this._renderSignature = null;
   }
 
   /**
@@ -178,6 +184,14 @@ export class MapManager {
       return;
     }
 
+    // Nothing changed since the last render (the common case for pan/zoom
+    // moveend events) - keep existing layers, styles and open popups intact.
+    const signature = this.buildRenderSignature(runs);
+    if (signature === this._renderSignature && Object.keys(this.routeLayers).length > 0) {
+      this.applyPendingFocus();
+      return;
+    }
+
     // Clear any existing layers
     this.clearRoutes();
 
@@ -269,6 +283,11 @@ export class MapManager {
         }
       });
     });
+
+    this._renderSignature = signature;
+
+    // Finish any focus request that was waiting on these layers being drawn
+    this.applyPendingFocus();
   }
 
   /**
@@ -286,14 +305,26 @@ export class MapManager {
    * @param {boolean} zoomToTrack Whether to pan/zoom the map to this track
    */
   focusRun(runId, zoomToTrack = true) {
+    // Update the active id first, so resetRouteStyle() correctly treats the
+    // previous run as unselected and restores its normal colour.
+    const previousRunId = this.activeRunId;
+    this.activeRunId = runId;
+
     // If there was an old active run, reset it
-    if (this.activeRunId && this.activeRunId !== runId) {
-      this.resetRouteStyle(this.activeRunId);
+    if (previousRunId && previousRunId !== runId) {
+      this.resetRouteStyle(previousRunId);
+      const previousLayer = this.routeLayers[previousRunId];
+      if (previousLayer) {
+        previousLayer.foreground.closePopup();
+      }
     }
 
-    this.activeRunId = runId;
     const layer = this.routeLayers[runId];
     if (!layer) {
+      // The route isn't rendered yet (zoomed out, or its coordinate chunk just
+      // arrived). Pan toward it and finish focusing once renderRoutes() has
+      // created the layer.
+      this._pendingFocusRunId = runId;
       const run = this.runs.find(r => r.id === runId);
       if (run && zoomToTrack) {
         const coord = run.startCoordinate || (run.coordinates && run.coordinates[0]);
@@ -303,6 +334,8 @@ export class MapManager {
       }
       return;
     }
+
+    this._pendingFocusRunId = null;
 
     // Apply active styles
     layer.foreground.setStyle(CONFIG.routeStyles.active);
@@ -320,12 +353,54 @@ export class MapManager {
   }
 
   /**
+   * Build a cheap fingerprint of what renderRoutes would draw, so repeated
+   * moveend events don't tear down and rebuild identical layers.
+   * @param {Array} runs
+   * @returns {string}
+   */
+  buildRenderSignature(runs) {
+    if (!runs || runs.length === 0) return 'empty';
+    return runs
+      .filter(run => run.coordinates && run.coordinates.length >= 2)
+      .map(run => run.id)
+      .sort()
+      .join('|');
+  }
+
+  /**
+   * Complete a focus request that was deferred until its route layer existed
+   */
+  applyPendingFocus() {
+    if (!this._pendingFocusRunId) return;
+    const layer = this.routeLayers[this._pendingFocusRunId];
+    if (!layer) return;
+
+    this._pendingFocusRunId = null;
+
+    layer.foreground.setStyle(CONFIG.routeStyles.active);
+    layer.foreground.bringToFront();
+    this.map.fitBounds(layer.foreground.getBounds(), {
+      padding: [60, 60],
+      animate: true,
+      duration: 0.8,
+    });
+    layer.foreground.openPopup();
+  }
+
+  /**
    * Reset the active selected state
    */
   clearActiveSelection() {
+    this._pendingFocusRunId = null;
     if (this.activeRunId) {
-      this.resetRouteStyle(this.activeRunId);
+      // Clear the id first so resetRouteStyle() restores the normal style
+      const previousRunId = this.activeRunId;
       this.activeRunId = null;
+      this.resetRouteStyle(previousRunId);
+      const layer = this.routeLayers[previousRunId];
+      if (layer) {
+        layer.foreground.closePopup();
+      }
     }
   }
 
@@ -371,7 +446,11 @@ export class MapManager {
       this.map.removeLayer(layer.background);
     });
     this.routeLayers = {};
-    this.activeRunId = null;
+
+    // NOTE: activeRunId is intentionally preserved here. Removing polylines is
+    // purely a rendering concern; selection is only cleared by the explicit
+    // clearActiveSelection() call so it survives moveend-driven re-renders.
+    this._renderSignature = null;
   }
 
   /**
