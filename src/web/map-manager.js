@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { getRunColor } from './utils.js';
+import { formatDate, formatDistance, formatDuration, formatPace, getRunColor } from './utils.js';
 
 export class MapManager {
   constructor(mapContainerId, callbacks = {}) {
@@ -16,7 +16,6 @@ export class MapManager {
     this.startPointLayers = {};
 
     this.activeRunId = null;
-    this._isMovingProgrammatically = false;
 
     // Run that should be focused as soon as its route layer exists
     this._pendingFocusRunId = null;
@@ -223,28 +222,46 @@ export class MapManager {
       // Create interactive foreground polyline
       const isSelected = run.id === this.activeRunId;
       const fgPolyline = L.polyline(latLngs, {
-        ...(isSelected ? CONFIG.routeStyles.active : { ...CONFIG.routeStyles.normal, color: runColor }),
+        ...(isSelected
+          ? CONFIG.routeStyles.active
+          : { ...CONFIG.routeStyles.normal, color: runColor }),
         interactive: true,
       }).addTo(this.map);
 
       // Extend overall map bounds to include this track
       bounds.extend(fgPolyline.getBounds());
 
-      // Bind a basic popup with run information
+      // Bind a popup with run information, mirroring the sidebar card layout
       const popupContent = `
-        <div class="p-1">
-          <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Run Details</div>
-          <div class="text-sm font-bold text-gray-900 mt-0.5">${new Date(run.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-          <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs">
-            <div><span class="text-gray-500">Distance:</span> <span class="font-semibold">${(run.distanceMeters / 1000).toFixed(2)} km</span></div>
-            <div><span class="text-gray-500">Duration:</span> <span class="font-semibold">${Math.round(run.durationSeconds / 60)} min</span></div>
-            <div><span class="text-gray-500">Avg Pace:</span> <span class="font-semibold">${this.formatPaceForPopup(run.paceSecondsPerKm)}</span></div>
+        <div class="run-popup">
+          <div class="run-popup__header">
+            <span class="run-popup__sport" style="color: ${runColor};">${run.sport || 'Running'}</span>
+            <h4 class="run-popup__date">${formatDate(run.date)}</h4>
+          </div>
+          <div class="run-popup__stats">
+            <div class="run-popup__stat">
+              <span class="run-popup__label">Distance</span>
+              <span class="run-popup__value">${formatDistance(run.distanceMeters)}</span>
+            </div>
+            <div class="run-popup__stat">
+              <span class="run-popup__label">Duration</span>
+              <span class="run-popup__value">${formatDuration(run.durationSeconds)}</span>
+            </div>
+            <div class="run-popup__stat">
+              <span class="run-popup__label">Avg Pace</span>
+              <span class="run-popup__value">${formatPace(run.paceSecondsPerKm)}</span>
+            </div>
           </div>
         </div>
       `;
       fgPolyline.bindPopup(popupContent, {
         closeButton: false,
         className: 'custom-map-popup',
+        // Wide enough for the longest real values (e.g. "178:47 /km") to sit on
+        // one line in all three columns without wrapping or clipping
+        minWidth: 268,
+        maxWidth: 300,
+        autoPanPadding: [16, 16],
       });
 
       // Save references
@@ -288,15 +305,6 @@ export class MapManager {
 
     // Finish any focus request that was waiting on these layers being drawn
     this.applyPendingFocus();
-  }
-
-  /**
-   * Helper to format pace purely for Leaflet popups
-   */
-  formatPaceForPopup(secondsPerKm) {
-    const minutes = Math.floor(secondsPerKm / 60);
-    const seconds = secondsPerKm % 60;
-    return `${minutes}:${String(seconds).padStart(2, '0')} /km`;
   }
 
   /**
