@@ -1,8 +1,8 @@
 {
   "locations": [
     {
-      "lat": 38.00276,
-      "lon": 23.72904,
+      "lat": 37.91594,
+      "lon": 23.71768,
       "name": "Athens, Greece"
     },
     {
@@ -238,9 +238,114 @@
     "coords_part_49.json",
     "coords_part_50.json",
     "coords_part_51.json",
-    "coords_part_52.json"
+    "coords_part_52.json",
+    "coords_part_53.json",
+    "coords_part_54.json",
+    "coords_part_55.json",
+    "coords_part_56.json",
+    "coords_part_57.json",
+    "coords_part_58.json",
+    "coords_part_59.json"
   ],
   "runs": [
+    {
+      "id": "2026-09-17T15:45:43Z",
+      "date": "2026-09-17T15:45:43Z",
+      "sport": "Running",
+      "distanceMeters": 12165,
+      "durationSeconds": 3959,
+      "paceSecondsPerKm": 325,
+      "startCoordinate": [
+        37.91594,
+        23.71768
+      ],
+      "chunkFile": "coords_part_59.json",
+      "locationIndex": 0
+    },
+    {
+      "id": "2026-09-15T16:16:12Z",
+      "date": "2026-09-15T16:16:12Z",
+      "sport": "Running",
+      "distanceMeters": 14814,
+      "durationSeconds": 4828,
+      "paceSecondsPerKm": 326,
+      "startCoordinate": [
+        37.99113,
+        23.72814
+      ],
+      "chunkFile": "coords_part_58.json",
+      "locationIndex": 0
+    },
+    {
+      "id": "2026-09-10T16:06:03Z",
+      "date": "2026-09-10T16:06:03Z",
+      "sport": "Running",
+      "distanceMeters": 14225,
+      "durationSeconds": 5394,
+      "paceSecondsPerKm": 379,
+      "startCoordinate": [
+        37.99131,
+        23.72718
+      ],
+      "chunkFile": "coords_part_57.json",
+      "locationIndex": 0
+    },
+    {
+      "id": "2026-09-01T16:26:26Z",
+      "date": "2026-09-01T16:26:26Z",
+      "sport": "Running",
+      "distanceMeters": 9492,
+      "durationSeconds": 3204,
+      "paceSecondsPerKm": 338,
+      "startCoordinate": [
+        37.99124,
+        23.72774
+      ],
+      "chunkFile": "coords_part_56.json",
+      "locationIndex": 0
+    },
+    {
+      "id": "2026-08-27T16:49:37Z",
+      "date": "2026-08-27T16:49:37Z",
+      "sport": "Running",
+      "distanceMeters": 11126,
+      "durationSeconds": 3907,
+      "paceSecondsPerKm": 351,
+      "startCoordinate": [
+        38.00275,
+        23.72935
+      ],
+      "chunkFile": "coords_part_55.json",
+      "locationIndex": 0
+    },
+    {
+      "id": "2026-08-20T16:17:44Z",
+      "date": "2026-08-20T16:17:44Z",
+      "sport": "Running",
+      "distanceMeters": 9379,
+      "durationSeconds": 2991,
+      "paceSecondsPerKm": 319,
+      "startCoordinate": [
+        38.00258,
+        23.72967
+      ],
+      "chunkFile": "coords_part_54.json",
+      "locationIndex": 0
+    },
+    {
+      "id": "2026-08-18T15:51:47Z",
+      "date": "2026-08-18T15:51:47Z",
+      "sport": "Running",
+      "distanceMeters": 10709,
+      "durationSeconds": 3614,
+      "paceSecondsPerKm": 337,
+      "startCoordinate": [
+        38.00278,
+        23.72908
+      ],
+      "chunkFile": "coords_part_53.json",
+      "locationIndex": 0
+    },
     {
       "id": "2026-08-12T16:46:58Z",
       "date": "2026-08-12T16:46:58Z",
