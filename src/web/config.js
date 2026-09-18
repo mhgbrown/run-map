@@ -44,8 +44,10 @@ export const CONFIG = {
   },
 
   // Tile layer URL and attribution (using CartoDB Voyager which looks extremely sleek)
+  // CARTO now requires a (free) Basemaps API key on raster tile requests, or a
+  // watermark is shown. Get/manage yours at https://carto.com/basemaps/apikey
   mapTiles: {
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=cb1_3pvj_1_97edaa39cef4e6b5e7d59879',
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
   },
