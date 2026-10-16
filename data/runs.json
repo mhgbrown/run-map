@@ -1,8 +1,8 @@
 {
   "locations": [
     {
-      "lat": 37.98433,
-      "lon": 23.71682,
+      "lat": 37.98525,
+      "lon": 23.71546,
       "name": "Athens, Greece"
     },
     {
@@ -250,9 +250,24 @@
     "coords_part_61.json",
     "coords_part_62.json",
     "coords_part_63.json",
-    "coords_part_64.json"
+    "coords_part_64.json",
+    "coords_part_65.json"
   ],
   "runs": [
+    {
+      "id": "2026-10-15T15:30:38Z",
+      "date": "2026-10-15T15:30:38Z",
+      "sport": "Running",
+      "distanceMeters": 21524,
+      "durationSeconds": 7488,
+      "paceSecondsPerKm": 348,
+      "startCoordinate": [
+        37.98525,
+        23.71546
+      ],
+      "chunkFile": "coords_part_65.json",
+      "locationIndex": 0
+    },
     {
       "id": "2026-10-06T16:13:43Z",
       "date": "2026-10-06T16:13:43Z",
