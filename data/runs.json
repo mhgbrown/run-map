@@ -1,8 +1,8 @@
 {
   "locations": [
     {
-      "lat": 35.45504,
-      "lon": 24.20954,
+      "lat": 35.45528,
+      "lon": 24.20951,
       "name": "Plaka, Greece"
     },
     {
@@ -252,9 +252,24 @@
     "coords_part_63.json",
     "coords_part_64.json",
     "coords_part_65.json",
-    "coords_part_66.json"
+    "coords_part_66.json",
+    "coords_part_67.json"
   ],
   "runs": [
+    {
+      "id": "2026-10-23T06:22:56Z",
+      "date": "2026-10-23T06:22:56Z",
+      "sport": "Running",
+      "distanceMeters": 6585,
+      "durationSeconds": 2294,
+      "paceSecondsPerKm": 348,
+      "startCoordinate": [
+        35.45528,
+        24.20951
+      ],
+      "chunkFile": "coords_part_67.json",
+      "locationIndex": 0
+    },
     {
       "id": "2026-10-20T15:08:45Z",
       "date": "2026-10-20T15:08:45Z",
