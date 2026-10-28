@@ -183,5 +183,10 @@
     "lat": 37.424,
     "lon": -122.07162,
     "name": "Mountain View, United States"
+  },
+  {
+    "lat": 45.46908,
+    "lon": 9.18645,
+    "name": "Milan, Italy"
   }
 ]
