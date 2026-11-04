@@ -1,6 +1,11 @@
 {
   "locations": [
     {
+      "lat": 37.9841,
+      "lon": 23.71653,
+      "name": "Athens, Greece"
+    },
+    {
       "lat": 45.46908,
       "lon": 9.18645,
       "name": "Milan, Italy"
@@ -9,11 +14,6 @@
       "lat": 35.45528,
       "lon": 24.20951,
       "name": "Plaka, Greece"
-    },
-    {
-      "lat": 37.98525,
-      "lon": 23.71546,
-      "name": "Athens, Greece"
     },
     {
       "lat": 41.15137,
@@ -259,9 +259,24 @@
     "coords_part_65.json",
     "coords_part_66.json",
     "coords_part_67.json",
-    "coords_part_68.json"
+    "coords_part_68.json",
+    "coords_part_69.json"
   ],
   "runs": [
+    {
+      "id": "2026-11-03T16:49:55Z",
+      "date": "2026-11-03T16:49:55Z",
+      "sport": "Running",
+      "distanceMeters": 8231,
+      "durationSeconds": 2760,
+      "paceSecondsPerKm": 335,
+      "startCoordinate": [
+        37.9841,
+        23.71653
+      ],
+      "chunkFile": "coords_part_69.json",
+      "locationIndex": 0
+    },
     {
       "id": "2026-10-27T17:20:57Z",
       "date": "2026-10-27T17:20:57Z",
@@ -274,7 +289,7 @@
         9.18645
       ],
       "chunkFile": "coords_part_68.json",
-      "locationIndex": 0
+      "locationIndex": 1
     },
     {
       "id": "2026-10-23T06:22:56Z",
@@ -288,7 +303,7 @@
         24.20951
       ],
       "chunkFile": "coords_part_67.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2026-10-20T15:08:45Z",
@@ -302,7 +317,7 @@
         24.20954
       ],
       "chunkFile": "coords_part_66.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2026-10-15T15:30:38Z",
@@ -316,7 +331,7 @@
         23.71546
       ],
       "chunkFile": "coords_part_65.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-10-06T16:13:43Z",
@@ -330,7 +345,7 @@
         23.71682
       ],
       "chunkFile": "coords_part_64.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-10-01T16:37:32Z",
@@ -344,7 +359,7 @@
         23.72744
       ],
       "chunkFile": "coords_part_63.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-09-29T16:20:46Z",
@@ -358,7 +373,7 @@
         23.72783
       ],
       "chunkFile": "coords_part_62.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-09-24T05:51:55Z",
@@ -372,7 +387,7 @@
         23.69616
       ],
       "chunkFile": "coords_part_61.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-09-23T16:16:00Z",
@@ -386,7 +401,7 @@
         23.72787
       ],
       "chunkFile": "coords_part_60.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-09-17T15:45:43Z",
@@ -400,7 +415,7 @@
         23.71768
       ],
       "chunkFile": "coords_part_59.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-09-15T16:16:12Z",
@@ -414,7 +429,7 @@
         23.72814
       ],
       "chunkFile": "coords_part_58.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-09-10T16:06:03Z",
@@ -428,7 +443,7 @@
         23.72718
       ],
       "chunkFile": "coords_part_57.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-09-01T16:26:26Z",
@@ -442,7 +457,7 @@
         23.72774
       ],
       "chunkFile": "coords_part_56.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-08-27T16:49:37Z",
@@ -456,7 +471,7 @@
         23.72935
       ],
       "chunkFile": "coords_part_55.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-08-20T16:17:44Z",
@@ -470,7 +485,7 @@
         23.72967
       ],
       "chunkFile": "coords_part_54.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-08-18T15:51:47Z",
@@ -484,7 +499,7 @@
         23.72908
       ],
       "chunkFile": "coords_part_53.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-08-12T16:46:58Z",
@@ -498,7 +513,7 @@
         23.72904
       ],
       "chunkFile": "coords_part_52.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-08-10T16:33:59Z",
@@ -512,7 +527,7 @@
         23.72969
       ],
       "chunkFile": "coords_part_51.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-08-05T15:58:57Z",
@@ -526,7 +541,7 @@
         23.72955
       ],
       "chunkFile": "coords_part_50.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-08-04T15:59:18Z",
@@ -540,7 +555,7 @@
         23.72845
       ],
       "chunkFile": "coords_part_49.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-07-30T17:15:01Z",
@@ -554,7 +569,7 @@
         23.72956
       ],
       "chunkFile": "coords_part_48.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-07-28T16:37:46Z",
@@ -568,7 +583,7 @@
         23.72965
       ],
       "chunkFile": "coords_part_47.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-07-09T06:30:31Z",
@@ -582,7 +597,7 @@
         23.72957
       ],
       "chunkFile": "coords_part_46.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-07-07T07:05:37Z",
@@ -596,7 +611,7 @@
         23.79784
       ],
       "chunkFile": "coords_part_45.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-07-07T05:55:04Z",
@@ -610,7 +625,7 @@
         23.72924
       ],
       "chunkFile": "coords_part_45.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-06-26T13:13:41Z",
@@ -680,7 +695,7 @@
         23.72952
       ],
       "chunkFile": "coords_part_1.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-06-16T06:57:53.693Z",
@@ -694,7 +709,7 @@
         23.72928
       ],
       "chunkFile": "coords_part_1.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-06-12T06:50:47.000Z",
@@ -708,7 +723,7 @@
         23.72958
       ],
       "chunkFile": "coords_part_1.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-06-09T06:54:04.613Z",
@@ -722,7 +737,7 @@
         23.72952
       ],
       "chunkFile": "coords_part_1.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-06-04T06:46:50.873Z",
@@ -736,7 +751,7 @@
         23.72955
       ],
       "chunkFile": "coords_part_1.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-06-02T06:50:06.368Z",
@@ -750,7 +765,7 @@
         23.72908
       ],
       "chunkFile": "coords_part_1.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-05-29T08:40:28.191Z",
@@ -960,7 +975,7 @@
         23.72947
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-03-31T08:19:00.000Z",
@@ -974,7 +989,7 @@
         23.71287
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-03-27T08:45:00.000Z",
@@ -988,7 +1003,7 @@
         23.72947
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-03-24T08:15:00.000Z",
@@ -1002,7 +1017,7 @@
         23.73442
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-03-21T10:15:00.000Z",
@@ -1016,7 +1031,7 @@
         23.72943
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-03-19T09:17:00.000Z",
@@ -1030,7 +1045,7 @@
         23.72974
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-03-15T12:08:00.000Z",
@@ -1044,7 +1059,7 @@
         23.72932
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-03-09T12:00:00.000Z",
@@ -1170,7 +1185,7 @@
         23.7189
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-01-07T10:16:00.000Z",
@@ -1184,7 +1199,7 @@
         23.71996
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-01-07T10:00:00.000Z",
@@ -1198,7 +1213,7 @@
         23.71867
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2026-01-02T09:07:00.000Z",
@@ -1212,7 +1227,7 @@
         23.71897
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2025-12-30T08:30:00.000Z",
@@ -1226,7 +1241,7 @@
         23.71994
       ],
       "chunkFile": "coords_part_2.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2025-12-25T10:30:00.000Z",
@@ -1366,7 +1381,7 @@
         23.71794
       ],
       "chunkFile": "coords_part_3.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2025-11-06T08:30:00.000Z",
@@ -1478,7 +1493,7 @@
         24.20887
       ],
       "chunkFile": "coords_part_3.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2025-10-02T16:29:00.000Z",
@@ -2710,7 +2725,7 @@
         23.70935
       ],
       "chunkFile": "coords_part_8.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2024-10-29T07:30:00.000Z",
@@ -2724,7 +2739,7 @@
         23.6945
       ],
       "chunkFile": "coords_part_8.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2024-10-29T07:15:00.000Z",
@@ -2738,7 +2753,7 @@
         23.70998
       ],
       "chunkFile": "coords_part_8.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2024-10-28T07:45:00.000Z",
@@ -2752,7 +2767,7 @@
         23.71037
       ],
       "chunkFile": "coords_part_8.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2024-10-24T08:29:00.000Z",
@@ -3578,7 +3593,7 @@
         23.7212
       ],
       "chunkFile": "coords_part_11.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2024-03-26T07:30:00.000Z",
@@ -3592,7 +3607,7 @@
         23.72115
       ],
       "chunkFile": "coords_part_11.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2024-03-21T10:30:00.000Z",
@@ -4432,7 +4447,7 @@
         23.69103
       ],
       "chunkFile": "coords_part_14.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2023-06-28T06:37:50.583Z",
@@ -4446,7 +4461,7 @@
         23.72281
       ],
       "chunkFile": "coords_part_14.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2023-06-26T08:34:33.312Z",
@@ -7330,7 +7345,7 @@
         24.08885
       ],
       "chunkFile": "coords_part_24.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2021-04-28T07:57:14.949Z",
@@ -7344,7 +7359,7 @@
         24.0888
       ],
       "chunkFile": "coords_part_24.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2021-04-21T07:21:39.145Z",
@@ -7358,7 +7373,7 @@
         24.09316
       ],
       "chunkFile": "coords_part_24.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2021-04-19T07:53:19.378Z",
@@ -7372,7 +7387,7 @@
         24.0889
       ],
       "chunkFile": "coords_part_24.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2021-04-15T07:13:10.187Z",
@@ -7386,7 +7401,7 @@
         24.0889
       ],
       "chunkFile": "coords_part_24.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2021-04-14T06:47:51.899Z",
@@ -7400,7 +7415,7 @@
         24.08893
       ],
       "chunkFile": "coords_part_25.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2021-04-13T06:58:20.240Z",
@@ -7414,7 +7429,7 @@
         24.08892
       ],
       "chunkFile": "coords_part_25.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2021-04-12T06:48:28.080Z",
@@ -7428,7 +7443,7 @@
         24.08892
       ],
       "chunkFile": "coords_part_25.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2021-04-09T08:26:30.091Z",
@@ -8254,7 +8269,7 @@
         24.22921
       ],
       "chunkFile": "coords_part_28.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2020-08-17T10:48:41.768Z",
@@ -8268,7 +8283,7 @@
         24.22918
       ],
       "chunkFile": "coords_part_28.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2020-08-13T07:42:54.593Z",
@@ -9948,7 +9963,7 @@
         24.20955
       ],
       "chunkFile": "coords_part_34.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2019-05-28T06:23:28.094Z",
@@ -9962,7 +9977,7 @@
         24.23106
       ],
       "chunkFile": "coords_part_34.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2019-05-28T05:50:39.567Z",
@@ -9976,7 +9991,7 @@
         24.20954
       ],
       "chunkFile": "coords_part_34.json",
-      "locationIndex": 1
+      "locationIndex": 2
     },
     {
       "id": "2019-05-23T06:18:23.014Z",
@@ -9990,7 +10005,7 @@
         23.76764
       ],
       "chunkFile": "coords_part_34.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2019-05-20T07:48:40.000Z",
@@ -10004,7 +10019,7 @@
         23.76862
       ],
       "chunkFile": "coords_part_34.json",
-      "locationIndex": 2
+      "locationIndex": 0
     },
     {
       "id": "2019-05-17T08:20:10.666Z",
